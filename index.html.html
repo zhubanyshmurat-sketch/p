@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Судың фазалық ауысулары - Premium</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background: #f0fdf4;
+            min-height: 100vh;
+            overflow-x: hidden;
+            margin: 0;
+            color: #1e293b;
+        }
+
+        .bg-blobs {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+        }
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            animation: move-blob 15s infinite alternate ease-in-out;
+        }
+        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #bae6fd; }
+        .blob-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: #bfdbfe; animation-delay: -5s; }
+        .blob-3 { top: 30%; left: 50%; width: 40vw; height: 40vw; background: #ddd6fe; animation-delay: -10s; }
+
+        @keyframes move-blob {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(10vw, 10vh) scale(1.2); }
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 
+                0 4px 6px -1px rgba(0, 0, 0, 0.05), 
+                0 25px 50px -12px rgba(0, 0, 0, 0.1),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+        }
+        
+        .glow-text {
+            text-shadow: 0 0 30px currentColor;
+            transition: text-shadow 0.3s ease;
+        }
+        
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            z-index: 10;
+            position: relative;
+            height: 40px; 
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 14px;
+            cursor: pointer;
+            background: linear-gradient(90deg, #93c5fd 0%, #a7f3d0 30%, #fde047 70%, #fca5a5 100%);
+            border-radius: 9999px;
+            border: 2px solid white;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.1), 0 2px 5px rgba(0,0,0,0.05);
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 36px;
+            width: 36px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            margin-top: -13px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), inset 0 0 0 6px currentColor;
+            border: none;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover,
+        input[type=range]:active::-webkit-slider-thumb {
+            transform: scale(1.2);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2), inset 0 0 0 6px currentColor;
+        }
+        
+        .beaker {
+            border: 6px solid rgba(255, 255, 255, 0.95);
+            border-top: none;
+            border-radius: 0 0 2.5rem 2.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                inset 0 -15px 30px rgba(0,0,0,0.05),
+                0 25px 50px rgba(0,0,0,0.15);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .beaker::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 10px;
+            width: 25px;
+            height: 90%;
+            background: linear-gradient(90deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 10px;
+            pointer-events: none;
+            z-index: 20;
+        }
+        
+        .steam-particle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+            filter: blur(4px);
+            animation: rise linear infinite;
+        }
+        @keyframes rise {
+            0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.7; }
+            100% { transform: translateY(-160px) scale(3) rotate(45deg); opacity: 0; }
+        }
+        
+        .bubble {
+            position: absolute;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.2));
+            border-radius: 50%;
+            bottom: -10px;
+            animation: boil ease-in infinite;
+            box-shadow: inset 0 0 5px rgba(255,255,255,0.5);
+        }
+        @keyframes boil {
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-200px) scale(1.5); opacity: 0; }
+        }
+        
+        .ice-crystal {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.85);
+            clip-path: polygon(50% 0%, 90% 25%, 90% 75%, 50% 100%, 10% 75%, 10% 25%);
+            box-shadow: inset 0 0 15px rgba(59, 130, 246, 0.3);
+            animation: float-ice 4s ease-in-out infinite alternate;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        @keyframes float-ice {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-8px) rotate(8deg); }
+        }
+        
+        .wave {
+            position: absolute;
+            top: -6px;
+            left: -10%;
+            right: -10%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: wave 3s ease-in-out infinite alternate;
+            filter: blur(1px);
+        }
+        @keyframes wave {
+            0% { transform: scaleX(1) translateY(0) rotate(-1deg); }
+            100% { transform: scaleX(1.05) translateY(4px) rotate(1deg); }
+        }
+
+        .phase-highlight {
+            animation: soft-pulse 2s infinite alternate;
+        }
+        @keyframes soft-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.7); }
+            100% { box-shadow: 0 0 20px 5px rgba(255,255,255,0); }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.6);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col items-center min-h-screen relative">
+    
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div id="root" class="w-full max-w-7xl z-10 relative flex-grow"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo } = React;
+
+        const questions = [
+            {
+                id: 1,
+                q: "Заттың сұйық күйден қатты күйге өту процесі қалай аталады?",
+                opts: ["Балқу", "Кристалдану", "Кебу", "Сублимация"],
+                ans: 1
+            },
+            {
+                id: 2,
+                q: "Қалыпты атмосфералық қысымда судың қайнау температурасы қандай?",
+                opts: ["0°C", "50°C", "100°C", "120°C"],
+                ans: 2
+            },
+            {
+                id: 3,
+                q: "Кебу (булану) процесі қандай температурада жүреді?",
+                opts: ["Тек 100°C-та", "0°C-тан жоғары кез келген температурада", "Кез келген температурада", "Тек қайнау кезінде"],
+                ans: 2
+            },
+            {
+                id: 4,
+                q: "Сұйықтық қайнап жатқан кезде оның температурасы қалай өзгереді?",
+                opts: ["Үнемі көтеріледі", "Төмендейді", "Өзгермейді (тұрақты болады)", "Алғашқыда көтеріліп, сосын төмендейді"],
+                ans: 2
+            },
+            {
+                id: 5,
+                q: "Мұздың меншікті балқу жылуын (λ) есептеу формуласы қандай?",
+                opts: ["Q = cmΔt", "Q = Lm", "Q = λm", "Q = qm"],
+                ans: 2
+            },
+            {
+                id: 6,
+                q: "Төмендегілердің қайсысы кебу жылдамдығына әсер етпейді?",
+                opts: ["Сұйықтың температурасы", "Сұйықтың еркін бетінің ауданы", "Жел (ауа ағыны)", "Сұйықтың массасы"],
+                ans: 3
+            },
+            {
+                id: 7,
+                q: "Су қатып, мұзға айналғанда оның көлемі қалай өзгереді?",
+                opts: ["Көлемі артады", "Көлемі кемиді", "Өзгермейді", "Алдымен кемиді, сосын артады"],
+                ans: 0
+            },
+            {
+                id: 8,
+                q: "Атмосфералық қысым төмендеген сайын (мысалы, тауға шыққанда) судың қайнау температурасы қалай өзгереді?",
+                opts: ["Артады", "Төмендейді", "Өзгермейді", "Су қайнамайды"],
+                ans: 1
+            },
+            {
+                id: 9,
+                q: "Кебу кезінде сұйықтықтан ең жылдам молекулалар ұшып шығады. Бұл кезде сұйықтықтың ішкі энергиясы мен температурасы қалай өзгереді?",
+                opts: ["Артады, қызады", "Өзгермейді", "Кемиді, салқындайды", "Энергиясы артады, бірақ салқындайды"],
+                ans: 2
+            },
+            {
+                id: 10,
+                q: "Қайнау мен кебудің басты айырмашылығы неде?",
+                opts: [
+                    "Қайнау тек бетінде, кебу барлық көлемде жүреді",
+                    "Қайнау барлық көлемде (ішінде де), ал кебу тек сұйықтың беткі қабатында жүреді",
+                    "Кебу кезінде жылу бөлінеді, қайнау кезінде жұтылады",
+                    "Ешқандай айырмашылығы жоқ"
+                ],
+                ans: 1
+            }
+        ];
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('sim'); // 'sim' | 'test'
+            const [temp, setTemp] = useState(20);
+            
+            // Тест state
+            const [answers, setAnswers] = useState({});
+            const [showResult, setShowResult] = useState(false);
+
+            const handleAnswer = (qId, oIdx) => {
+                if(showResult) return;
+                setAnswers({...answers, [qId]: oIdx});
+            }
+
+            const checkResults = () => {
+                if(Object.keys(answers).length < questions.length) {
+                    alert("Барлық сұрақтарға жауап беріңіз!");
+                    return;
+                }
+                setShowResult(true);
+            }
+
+            const resetTest = () => {
+                setAnswers({});
+                setShowResult(false);
+                window.scrollTo(0, 0);
+            }
+
+            const score = useMemo(() => {
+                return Object.keys(answers).reduce((acc, qId) => {
+                    return acc + (answers[qId] === questions.find(q => q.id == qId).ans ? 1 : 0);
+                }, 0);
+            }, [answers]);
+
+            const phase = useMemo(() => {
+                if (temp < 0) return 'ice';
+                if (temp === 0) return 'melting';
+                if (temp > 0 && temp < 100) return 'liquid';
+                return 'boiling';
+            }, [temp]);
+
+            const info = useMemo(() => {
+                switch(phase) {
+                    case 'ice': return {
+                        title: "Кристалдану (Мұз)",
+                        desc: "Температура 0°C-тан төмендегенде су молекулаларының кинетикалық энергиясы азайып, олардың арасындағы тартылыс күштері басым болады. Нәтижесінде тұрақты гексагоналды кристалдық тор түзіледі. Бұл процесс кристалдану деп аталады. Судың ерекшелігі – мұзға айналғанда оның көлемі үлкейіп, тығыздығы төмендейді. Сондықтан мұз су бетінде қалқиды.",
+                        formula: "Мұздың меншікті балқу жылуы: λ = 3.3 × 10⁵ Дж/кг. (1 кг мұзды толық еріту үшін осынша жылу қажет).",
+                        color: "text-blue-700",
+                        bg: "bg-blue-100",
+                        glowColor: "rgba(29, 78, 216, 0.7)"
+                    };
+                    case 'melting': return {
+                        title: "Фазалық өту (0°C) - Балқу / Қату",
+                        desc: "0°C — судың қату және мұздың балқу нүктесі. Бұл күйде затқа жылу берілсе, ол температурасын өзгертпей түгелдей мұздан суға айналады. Себебі берілген жылу молекулалар арасындағы кристалдық байланысты үзуге (бұзуға) толығымен жұмсалады. Тек мұз толық еріп біткеннен кейін ғана судың температурасы қайта көтеріле бастайды.",
+                        formula: "Жылу мөлшерін есептеу: Q = λ · m (балқу үшін) немесе Q = -λ · m (кристалдану үшін).",
+                        color: "text-blue-600",
+                        bg: "bg-blue-200",
+                        glowColor: "rgba(37, 99, 235, 0.7)"
+                    };
+                    case 'liquid': return {
+                        title: "Сұйық су және Кебу",
+                        desc: "Сұйық күйде молекулалар бір-біріне жақын орналасқанымен, еркін орын ауыстыра алады. Кебу — кез келген температурада сұйықтың еркін бетінде ғана жүретін булану процесі. Кинетикалық энергиясы өте жоғары молекулалар сұйық бетіндегі тартылыс күшін жеңіп, буға айналып ұшып шығады. Ең жылдам молекулалар ұшып кеткендіктен, сұйықтың ішкі энергиясы азайып, ол кебу кезінде салқындайды.",
+                        formula: "Суды қыздыруға қажетті жылу: Q = c · m · Δt. (Судың меншікті жылу сыйымдылығы: c = 4200 Дж/(кг·°C)).",
+                        color: "text-blue-500",
+                        bg: "bg-blue-400",
+                        glowColor: "rgba(59, 130, 246, 0.7)"
+                    };
+                    case 'boiling': return {
+                        title: "Қайнау (100°C+)",
+                        desc: "Қайнау — сұйықтың тек бетінде емес, барлық көлемінде жүретін қарқынды булану процесі. Су 100°C-қа (қалыпты қысымда) жеткенде, оның ішіндегі кішкентай ауа көпіршіктерінің ішіне су буланып кіреді. Көпіршік ішіндегі қаныққан бу қысымы атмосфералық қысыммен теңескенде, олар лезде үлкейіп, бетке көтеріліп жарылады. Су толық буға айналып біткенше оның температурасы 100°C-та тұрақты болып қалады.",
+                        formula: "Судың меншікті булану жылуы: L = 2.26 × 10⁶ Дж/кг. (Булану үшін: Q = L · m).",
+                        color: "text-red-600",
+                        bg: "bg-red-100",
+                        glowColor: "rgba(220, 38, 38, 0.7)"
+                    };
+                }
+            }, [phase]);
+
+            const sliderColor = temp >= 100 ? '#ef4444' : temp < 0 ? '#1d4ed8' : '#3b82f6';
+
+            return (
+                <div className="space-y-6 max-w-6xl mx-auto pb-10">
+                    <header className="text-center space-y-3 mb-6">
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 tracking-tight drop-shadow-sm mt-4">
+                            Судың <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-400">фазалық</span> ауысулары
+                        </h1>
+                    </header>
+
+                    {/* Навигация */}
+                    <div className="flex justify-center gap-4 mb-8">
+                        <button 
+                            onClick={() => setActiveTab('sim')} 
+                            className={`px-8 py-3 rounded-full font-extrabold text-[15px] uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${activeTab === 'sim' ? 'bg-blue-600 text-white shadow-xl scale-105' : 'bg-white/70 text-blue-600 hover:bg-white shadow-sm'}`}
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                            Теория және Симуляция
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('test')} 
+                            className={`px-8 py-3 rounded-full font-extrabold text-[15px] uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${activeTab === 'test' ? 'bg-blue-600 text-white shadow-xl scale-105' : 'bg-white/70 text-blue-600 hover:bg-white shadow-sm'}`}
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Тест тапсыру
+                        </button>
+                    </div>
+
+                    {activeTab === 'sim' && (
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-[fadeIn_0.5s_ease-out]">
+                            {/* Сол жақ: Визуал және Slider */}
+                            <div className="lg:col-span-5 space-y-6">
+                                <div className="glass rounded-[2rem] p-8 h-[480px] flex flex-col items-center justify-center relative group">
+                                    <div className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
+                                        <span className="text-slate-500 font-bold text-xs uppercase tracking-widest bg-white/60 px-3 py-1 rounded-lg backdrop-blur-md">Термометр</span>
+                                        <div 
+                                            className={`text-5xl font-black transition-colors duration-300 glow-text ${temp >= 100 ? 'text-red-500' : temp < 0 ? 'text-blue-700' : 'text-blue-500'}`}
+                                            style={{ textShadow: `0 0 30px ${info.glowColor}` }}
+                                        >
+                                            {temp}°C
+                                        </div>
+                                    </div>
+
+                                    <div className="beaker w-56 h-64 mt-12 relative z-10 flex items-end justify-center group-hover:scale-[1.03] transition-transform duration-500">
+                                        <div 
+                                            className={`w-full transition-all duration-1000 ease-in-out relative ${
+                                                phase === 'ice' ? 'h-[105%] bg-gradient-to-b from-blue-100 to-blue-200' : 
+                                                phase === 'boiling' ? 'h-[75%] bg-gradient-to-b from-blue-200/80 to-blue-400/80' : 'h-[85%] bg-gradient-to-b from-blue-300/90 to-blue-500/90'
+                                            }`}
+                                        >
+                                            {phase !== 'ice' && <div className="wave"></div>}
+
+                                            {phase === 'ice' && (
+                                                <div className="absolute inset-0 flex flex-wrap justify-center items-center gap-1.5 p-3 opacity-90">
+                                                    {[...Array(10)].map((_,i) => (
+                                                        <div key={i} className="ice-crystal" style={{
+                                                            width: `${25 + Math.random()*25}px`, 
+                                                            height: `${25 + Math.random()*25}px`,
+                                                            transform: `rotate(${Math.random()*90}deg)`,
+                                                            animationDelay: `${Math.random()*2}s`
+                                                        }}></div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {phase === 'boiling' && (
+                                                <div className="absolute inset-0 overflow-hidden">
+                                                    {[...Array(35)].map((_,i) => (
+                                                        <div key={i} className="bubble" style={{
+                                                            left: `${Math.random()*90}%`,
+                                                            width: `${8 + Math.random()*18}px`,
+                                                            height: `${8 + Math.random()*18}px`,
+                                                            animationDuration: `${0.3 + Math.random()*0.7}s`,
+                                                            animationDelay: `${Math.random()}s`
+                                                        }}></div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="absolute top-[40px] w-56 h-56 z-0 overflow-visible pointer-events-none">
+                                        {temp > -10 && [...Array(
+                                            phase === 'boiling' ? 45 : 
+                                            phase === 'liquid' ? Math.max(4, Math.floor(temp/3)) : 0
+                                        )].map((_,i) => (
+                                            <div key={i} className="steam-particle" style={{
+                                                left: `${5 + Math.random()*90}%`,
+                                                width: `${15 + Math.random()*30}px`,
+                                                height: `${15 + Math.random()*30}px`,
+                                                animationDuration: `${(phase === 'boiling' ? 0.8 : 1.5) + Math.random()*2}s`,
+                                                animationDelay: `${Math.random()*3}s`
+                                            }}></div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="glass rounded-[2rem] p-6 relative overflow-hidden">
+                                    <label className="flex items-center gap-2 text-slate-800 font-bold text-lg mb-5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>
+                                        Температураны реттеңіз:
+                                    </label>
+                                    <div className="relative pt-1 pb-2">
+                                        <input 
+                                            type="range" 
+                                            min="-30" 
+                                            max="130" 
+                                            value={temp} 
+                                            onChange={(e) => setTemp(Number(e.target.value))}
+                                            style={{ color: sliderColor }}
+                                        />
+                                        <div className="flex justify-between text-xs font-bold text-slate-400 mt-4 px-1">
+                                            <span>-30°C</span>
+                                            <span className="text-blue-600 font-extrabold text-sm">0°C</span>
+                                            <span>50°C</span>
+                                            <span className="text-red-500 font-extrabold text-sm">100°C</span>
+                                            <span>130°C</span>
+                                        </div>
+                                        
+                                        <div className="absolute top-[23px] w-1 h-4 bg-white border-2 border-blue-400 rounded-full shadow-sm z-0 pointer-events-none" style={{ left: '18.75%' }}></div>
+                                        <div className="absolute top-[23px] w-1 h-4 bg-white border-2 border-red-400 rounded-full shadow-sm z-0 pointer-events-none" style={{ left: '81.25%' }}></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Оң жақ: Теория */}
+                            <div className="lg:col-span-7 space-y-6">
+                                <div className="glass rounded-[2rem] p-8 h-full transition-all duration-700 relative overflow-hidden flex flex-col" 
+                                    style={{ backgroundColor: phase === 'boiling' ? 'rgba(254, 226, 226, 0.4)' : phase === 'ice' ? 'rgba(219, 234, 254, 0.4)' : 'rgba(255, 255, 255, 0.5)' }}>
+                                    
+                                    <div className="absolute top-0 right-0 w-64 h-64 opacity-20 rounded-full blur-3xl pointer-events-none transition-colors duration-700"
+                                        style={{ backgroundColor: info.glowColor }}></div>
+
+                                    <div className="relative z-10 flex-grow">
+                                        <div className="flex items-center gap-4 mb-5">
+                                            <div className={`w-4 h-4 rounded-full ${info.color.replace('text', 'bg')} shadow-lg animate-pulse ring-4 ring-white/50`}></div>
+                                            <h2 className={`text-3xl font-extrabold ${info.color} tracking-tight`}>{info.title}</h2>
+                                        </div>
+                                        
+                                        <p className="text-slate-800 text-[1.1rem] leading-relaxed mb-6 font-medium text-justify">
+                                            {info.desc}
+                                        </p>
+
+                                        <div className="bg-white/60 p-4 rounded-2xl mb-6 shadow-sm border border-white flex items-start gap-3">
+                                            <svg className={`w-6 h-6 mt-0.5 flex-shrink-0 ${info.color}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                            <div>
+                                                <span className="font-bold text-slate-800 block mb-1 uppercase text-xs tracking-wider">Физикалық заңдылық:</span>
+                                                <span className="font-mono text-[0.95rem] text-slate-700 font-semibold">{info.formula}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-8 pt-6 border-t border-slate-300/50">
+                                            <h3 className="text-lg font-bold text-slate-800 mb-4 text-center">Буланудың екі түрі</h3>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div className="glass bg-white/40 p-5 rounded-2xl hover:bg-white/60 transition-colors">
+                                                    <h4 className="font-extrabold text-blue-800 text-sm uppercase mb-3 flex items-center gap-2">
+                                                        <svg className="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
+                                                        Кебу ерекшеліктері
+                                                    </h4>
+                                                    <ul className="text-sm text-slate-700 font-medium space-y-2 list-disc pl-4 marker:text-blue-400">
+                                                        <li>Кез келген температурада жүреді.</li>
+                                                        <li>Тек сұйықтықтың <b>беткі қабатында</b> болады.</li>
+                                                        <li>Температура, жел және беткі аудан артқан сайын кебу жылдамдайды.</li>
+                                                        <li>Кебу кезінде сұйықтық энергиясын жоғалтып <b>салқындайды</b>.</li>
+                                                    </ul>
+                                                </div>
+                                                <div className="glass bg-white/40 p-5 rounded-2xl hover:bg-white/60 transition-colors">
+                                                    <h4 className="font-extrabold text-red-700 text-sm uppercase mb-3 flex items-center gap-2">
+                                                        <svg className="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" /></svg>
+                                                        Қайнау ерекшеліктері
+                                                    </h4>
+                                                    <ul className="text-sm text-slate-700 font-medium space-y-2 list-disc pl-4 marker:text-red-400">
+                                                        <li>Тек белгілі бір қайнау температурасында жүреді (су үшін 100°C).</li>
+                                                        <li>Сұйықтың бетінде және <b>барлық көлемінде</b> жүреді.</li>
+                                                        <li>Процесс аяқталғанша температура <b>өзгермейді</b>.</li>
+                                                        <li>Қайнау температурасы атмосфералық қысымға тәуелді.</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Тест бөлімі */}
+                    {activeTab === 'test' && (
+                        <div className="glass rounded-[2.5rem] p-6 md:p-10 max-w-4xl mx-auto animate-[fadeIn_0.5s_ease-out]">
+                            <h2 className="text-3xl font-extrabold text-blue-900 mb-8 text-center flex items-center justify-center gap-3">
+                                <svg className="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+                                Білімді тексеру тесті
+                            </h2>
+                            
+                            <div className="space-y-6">
+                                {questions.map((q, i) => (
+                                    <div key={q.id} className="bg-white/70 p-6 rounded-2xl shadow-sm border border-white hover:shadow-md transition-shadow">
+                                        <h3 className="text-lg font-bold text-slate-800 mb-5">
+                                            <span className="text-blue-500 mr-2">{i+1}.</span>{q.q}
+                                        </h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {q.opts.map((opt, oIdx) => {
+                                                const isSelected = answers[q.id] === oIdx;
+                                                const isCorrect = q.ans === oIdx;
+                                                let btnClass = "text-left px-5 py-4 rounded-xl border-2 font-medium transition-all duration-200 focus:outline-none flex items-center justify-between ";
+                                                
+                                                if (showResult) {
+                                                    if (isCorrect) btnClass += "border-green-500 bg-green-50 text-green-800";
+                                                    else if (isSelected) btnClass += "border-red-500 bg-red-50 text-red-800";
+                                                    else btnClass += "border-slate-200 text-slate-400 bg-slate-50/50";
+                                                } else {
+                                                    if (isSelected) btnClass += "border-blue-500 bg-blue-50 text-blue-800 shadow-sm";
+                                                    else btnClass += "border-transparent bg-white hover:border-blue-300 text-slate-700 hover:bg-blue-50/50 shadow-sm";
+                                                }
+
+                                                return (
+                                                    <button key={oIdx} onClick={() => handleAnswer(q.id, oIdx)} className={btnClass} disabled={showResult}>
+                                                        <span>{opt}</span>
+                                                        {showResult && isCorrect && <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
+                                                        {showResult && isSelected && !isCorrect && <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            
+                            <div className="mt-10 flex justify-center flex-col items-center gap-4">
+                                {!showResult ? (
+                                    <button 
+                                        onClick={checkResults} 
+                                        className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-12 py-4 rounded-full shadow-[0_10px_20px_rgba(37,99,235,0.3)] hover:shadow-[0_15px_25px_rgba(37,99,235,0.4)] hover:-translate-y-1 transition-all text-lg uppercase tracking-wider"
+                                    >
+                                        Нәтижені көру
+                                    </button>
+                                ) : (
+                                    <div className="text-center w-full bg-white p-8 rounded-3xl shadow-xl border-2 border-slate-100 animate-[fadeIn_0.5s_ease-out]">
+                                        <h3 className="text-4xl font-black mb-3 text-slate-800">
+                                            Сіздің нәтижеңіз: <span className={score >= 8 ? 'text-green-500' : score >= 5 ? 'text-amber-500' : 'text-red-500'}>{score} / 10</span>
+                                        </h3>
+                                        <p className="text-slate-600 text-lg mb-8 font-medium">
+                                            {score === 10 ? 'Керемет! Сіз тақырыпты толық меңгердіңіз. 🏆' : 
+                                            score >= 7 ? 'Жақсы нәтиже! Бірақ әлі де қайталайтын тұстар бар. 👍' : 
+                                            'Тақырыпты қайтадан оқып шығуға кеңес береміз. 📚'}
+                                        </p>
+                                        <button 
+                                            onClick={resetTest} 
+                                            className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-10 py-4 rounded-full shadow-md hover:-translate-y-1 transition-all uppercase tracking-wider"
+                                        >
+                                            Тестті қайта тапсыру
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
